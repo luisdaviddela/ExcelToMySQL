@@ -1,0 +1,732 @@
+-- phpMyAdmin SQL Dump
+-- version 4.0.4
+-- http://www.phpmyadmin.net
+--
+-- Servidor: 127.0.0.1
+-- Tiempo de generación: 01-11-2016 a las 21:29:36
+-- Versión del servidor: 5.5.32
+-- Versión de PHP: 5.4.16
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+
+--
+-- Base de datos: `lalala`
+--
+CREATE DATABASE IF NOT EXISTS `lalala` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `lalala`;
+
+DELIMITER $$
+--
+-- Procedimientos
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_procedure`()
+BEGIN
+Select * from alumnos;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `proc2`()
+BEGIN
+Declare ok int;
+declare carreraID int;
+Declare corre CURSOR FOR SELECT matricula,id_carrera from alumnos;
+Open corre;
+read_loop: loop
+fetch corre into ok,carreraID;
+update alumnos set estanciaI=if(EXISTS(SELECT * from materias where cuatrimestre BETWEEN 1 AND 5
+ AND id_carrera=carreraID AND id_materia not IN(SELECT id_materia FROM materiaalumno WHERE Calificación>=70 
+AND matricula=ok) ),'Rechazado','Aceptado' ),estanciaII=if(EXISTS(SELECT * from materias where cuatrimestre BETWEEN 1 AND 7
+ AND id_carrera=carreraID AND id_materia not IN(SELECT id_materia FROM materiaalumno WHERE Calificación>=70 
+AND matricula=ok) ),'Rechazado','Aceptado' ),
+estadias=if(EXISTS(SELECT * from materias where cuatrimestre BETWEEN 1 AND 9
+ AND id_carrera=carreraID AND id_materia not IN(SELECT id_materia FROM materiaalumno WHERE Calificación>=70 
+AND matricula=ok) ),'Rechazado','Aceptado' )where matricula=ok;
+Select * from Alumnos where id_carrera=carreraID;
+end loop;
+close corre;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `procedure`(in carreraID int)
+BEGIN
+Declare ok int;
+Declare corre CURSOR FOR SELECT matricula from alumnos where id_carrera=carreraID;
+Open corre;
+read_loop: loop
+fetch corre into ok;
+update alumnos set estanciaI=if(EXISTS(SELECT * from materias where cuatrimestre BETWEEN 1 AND 5
+ AND id_carrera=carreraID AND id_materia not IN(SELECT id_materia FROM materiaalumno WHERE Calificación>=70 
+AND matricula=ok) ),'Rechazado','Aceptado' ),estanciaII=if(EXISTS(SELECT * from materias where cuatrimestre BETWEEN 1 AND 7
+ AND id_carrera=carreraID AND id_materia not IN(SELECT id_materia FROM materiaalumno WHERE Calificación>=70 
+AND matricula=ok) ),'Rechazado','Aceptado' ),
+estadias=if(EXISTS(SELECT * from materias where cuatrimestre BETWEEN 1 AND 9
+ AND id_carrera=carreraID AND id_materia not IN(SELECT id_materia FROM materiaalumno WHERE Calificación>=70 
+AND matricula=ok) ),'Rechazado','Aceptado' )where matricula=ok;
+end loop;
+close corre;
+Select * from Alumnos;
+END$$
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `alumnos`
+--
+
+CREATE TABLE IF NOT EXISTS `alumnos` (
+  `matricula` int(11) NOT NULL AUTO_INCREMENT,
+  `Nombre` varchar(50) NOT NULL,
+  `id_carrera` int(11) NOT NULL,
+  `EstanciaI` varchar(40) NOT NULL,
+  `EstanciaII` varchar(40) NOT NULL,
+  `Estadias` varchar(40) NOT NULL,
+  PRIMARY KEY (`matricula`),
+  KEY `fk_carrera` (`id_carrera`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2412 ;
+
+--
+-- Volcado de datos para la tabla `alumnos`
+--
+
+INSERT INTO `alumnos` (`matricula`, `Nombre`, `id_carrera`, `EstanciaI`, `EstanciaII`, `Estadias`) VALUES
+(1728, 'Reyna', 2, 'Rechazado', 'Rechazado', 'Rechazado'),
+(1832, 'Ronald', 2, 'Aceptado', 'Aceptado', 'Rechazado'),
+(1877, 'Jorge Enrique', 2, 'Aceptado', 'Aceptado', 'Rechazado'),
+(2411, 'Miguel Angel', 2, 'Rechazado', 'Rechazado', 'Rechazado');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `carrera`
+--
+
+CREATE TABLE IF NOT EXISTS `carrera` (
+  `id_carrera` int(11) NOT NULL AUTO_INCREMENT,
+  `nombreCarrera` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id_carrera`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
+
+--
+-- Volcado de datos para la tabla `carrera`
+--
+
+INSERT INTO `carrera` (`id_carrera`, `nombreCarrera`) VALUES
+(1, 'Ingeniería Industrial'),
+(2, 'Ingeniería En Tecnologías De La Información'),
+(3, 'Ingeniería En Energía'),
+(4, 'Ingeniería Electrónica y Telecomunicaciónes');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `materiaalumno`
+--
+
+CREATE TABLE IF NOT EXISTS `materiaalumno` (
+  `matricula` int(11) NOT NULL,
+  `id_materia` int(11) NOT NULL,
+  `Calificación` int(11) DEFAULT NULL,
+  `id_carrera` int(11) DEFAULT NULL,
+  KEY `fk_alumno` (`matricula`),
+  KEY `fk_materia` (`id_materia`),
+  KEY `carreraID` (`id_carrera`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `materiaalumno`
+--
+
+INSERT INTO `materiaalumno` (`matricula`, `id_materia`, `Calificación`, `id_carrera`) VALUES
+(1728, 65, 50, 2),
+(1728, 66, 70, 2),
+(1728, 67, 70, 2),
+(1728, 68, 70, 2),
+(1728, 69, 70, 2),
+(1728, 70, 70, 2),
+(1728, 71, 70, 2),
+(1728, 72, 70, 2),
+(1728, 73, 70, 2),
+(1728, 74, 70, 2),
+(1728, 75, 70, 2),
+(1728, 76, 70, 2),
+(1728, 77, 70, 2),
+(1728, 78, 70, 2),
+(1728, 79, 70, 2),
+(1728, 80, 70, 2),
+(1728, 81, 70, 2),
+(1728, 82, 70, 2),
+(1728, 83, 70, 2),
+(1728, 84, 70, 2),
+(1728, 85, 70, 2),
+(1728, 86, 70, 2),
+(1728, 87, 70, 2),
+(1728, 88, 70, 2),
+(1728, 89, 70, 2),
+(1728, 90, 70, 2),
+(1728, 91, 70, 2),
+(1728, 92, 70, 2),
+(1728, 93, 70, 2),
+(1728, 94, 70, 2),
+(1728, 95, 70, 2),
+(1728, 96, 70, 2),
+(1728, 97, 70, 2),
+(1728, 98, 70, 2),
+(1728, 99, 70, 2),
+(1728, 100, 70, 2),
+(1728, 101, 70, 2),
+(1728, 102, 70, 2),
+(1728, 103, 70, 2),
+(1728, 104, 70, 2),
+(1728, 105, 70, 2),
+(1728, 64, 70, 2),
+(1832, 64, 70, 2),
+(1832, 65, 70, 2),
+(1832, 66, 70, 2),
+(1832, 67, 70, 2),
+(1832, 68, 70, 2),
+(1832, 69, 70, 2),
+(1832, 70, 70, 2),
+(1832, 71, 70, 2),
+(1832, 72, 70, 2),
+(1832, 73, 70, 2),
+(1832, 74, 70, 2),
+(1832, 75, 70, 2),
+(1832, 76, 70, 2),
+(1832, 77, 70, 2),
+(1832, 78, 70, 2),
+(1832, 79, 70, 2),
+(1832, 80, 70, 2),
+(1832, 81, 70, 2),
+(1832, 82, 70, 2),
+(1832, 83, 70, 2),
+(1832, 84, 70, 2),
+(1832, 85, 70, 2),
+(1832, 86, 70, 2),
+(1832, 87, 70, 2),
+(1832, 88, 70, 2),
+(1832, 89, 70, 2),
+(1832, 90, 70, 2),
+(1832, 91, 70, 2),
+(1832, 92, 70, 2),
+(1832, 93, 70, 2),
+(1832, 94, 70, 2),
+(1832, 95, 70, 2),
+(1832, 96, 70, 2),
+(1832, 97, 70, 2),
+(1832, 98, 70, 2),
+(1832, 99, 70, 2),
+(1832, 100, 70, 2),
+(1832, 101, 70, 2),
+(1832, 102, 70, 2),
+(1832, 103, 70, 2),
+(1832, 104, 70, 2),
+(1832, 105, 70, 2),
+(1832, 106, 70, 2),
+(1832, 107, 70, 2),
+(1832, 108, 70, 2),
+(1832, 109, 70, 2),
+(1832, 110, 70, 2),
+(1832, 111, 70, 2),
+(1832, 112, 70, 2),
+(1832, 113, 70, 2),
+(1832, 114, 70, 2),
+(1832, 115, 70, 2),
+(1832, 116, 70, 2),
+(1832, 117, 70, 2),
+(1832, 118, 70, 2),
+(2411, 64, 70, 2),
+(2411, 65, 70, 2),
+(2411, 66, 70, 2),
+(2411, 67, 70, 2),
+(2411, 68, 70, 2),
+(2411, 69, 70, 2),
+(2411, 70, 70, 2),
+(1877, 64, 70, 2),
+(1877, 65, 70, 2),
+(1877, 66, 70, 2),
+(1877, 67, 70, 2),
+(1877, 68, 70, 2),
+(1877, 69, 70, 2),
+(1877, 70, 70, 2),
+(1877, 71, 70, 2),
+(1877, 72, 70, 2),
+(1877, 73, 70, 2),
+(1877, 74, 70, 2),
+(1877, 75, 70, 2),
+(1877, 76, 70, 2),
+(1877, 77, 70, 2),
+(1877, 78, 70, 2),
+(1877, 79, 70, 2),
+(1877, 80, 70, 2),
+(1877, 81, 70, 2),
+(1877, 82, 70, 2),
+(1877, 83, 70, 2),
+(1877, 84, 70, 2),
+(1877, 85, 70, 2),
+(1877, 86, 70, 2),
+(1877, 87, 70, 2),
+(1877, 88, 70, 2),
+(1877, 89, 70, 2),
+(1877, 90, 70, 2),
+(1877, 91, 70, 2),
+(1877, 92, 70, 2),
+(1877, 93, 70, 2),
+(1877, 94, 70, 2),
+(1877, 95, 70, 2),
+(1877, 96, 70, 2),
+(1877, 97, 70, 2),
+(1877, 98, 70, 2),
+(1877, 99, 70, 2),
+(1877, 100, 70, 2),
+(1877, 101, 70, 2),
+(1877, 102, 70, 2),
+(1877, 103, 70, 2),
+(1877, 104, 70, 2),
+(1877, 105, 70, 2),
+(1877, 106, 70, 2),
+(1877, 107, 70, 2),
+(1877, 108, 70, 2),
+(1877, 109, 70, 2),
+(1877, 110, 70, 2),
+(1877, 111, 70, 2),
+(1877, 112, 70, 2),
+(1728, 65, 50, 2),
+(1728, 66, 70, 2),
+(1728, 67, 70, 2),
+(1728, 68, 70, 2),
+(1728, 69, 70, 2),
+(1728, 70, 70, 2),
+(1728, 71, 70, 2),
+(1728, 72, 70, 2),
+(1728, 73, 70, 2),
+(1728, 74, 70, 2),
+(1728, 75, 70, 2),
+(1728, 76, 70, 2),
+(1728, 77, 70, 2),
+(1728, 78, 70, 2),
+(1728, 79, 70, 2),
+(1728, 80, 70, 2),
+(1728, 81, 70, 2),
+(1728, 82, 70, 2),
+(1728, 83, 70, 2),
+(1728, 84, 70, 2),
+(1728, 85, 70, 2),
+(1728, 86, 70, 2),
+(1728, 87, 70, 2),
+(1728, 88, 70, 2),
+(1728, 89, 70, 2),
+(1728, 90, 70, 2),
+(1728, 91, 70, 2),
+(1728, 92, 70, 2),
+(1728, 93, 70, 2),
+(1728, 94, 70, 2),
+(1728, 95, 70, 2),
+(1728, 96, 70, 2),
+(1728, 97, 70, 2),
+(1728, 98, 70, 2),
+(1728, 99, 70, 2),
+(1728, 100, 70, 2),
+(1728, 101, 70, 2),
+(1728, 102, 70, 2),
+(1728, 103, 70, 2),
+(1728, 104, 70, 2),
+(1728, 105, 70, 2),
+(1728, 64, 70, 2),
+(1832, 64, 70, 2),
+(1832, 65, 70, 2),
+(1832, 66, 70, 2),
+(1832, 67, 70, 2),
+(1832, 68, 70, 2),
+(1832, 69, 70, 2),
+(1832, 70, 70, 2),
+(1832, 71, 70, 2),
+(1832, 72, 70, 2),
+(1832, 73, 70, 2),
+(1832, 74, 70, 2),
+(1832, 75, 70, 2),
+(1832, 76, 70, 2),
+(1832, 77, 70, 2),
+(1832, 78, 70, 2),
+(1832, 79, 70, 2),
+(1832, 80, 70, 2),
+(1832, 81, 70, 2),
+(1832, 82, 70, 2),
+(1832, 83, 70, 2),
+(1832, 84, 70, 2),
+(1832, 85, 70, 2),
+(1832, 86, 70, 2),
+(1832, 87, 70, 2),
+(1832, 88, 70, 2),
+(1832, 89, 70, 2),
+(1832, 90, 70, 2),
+(1832, 91, 70, 2),
+(1832, 92, 70, 2),
+(1832, 93, 70, 2),
+(1832, 94, 70, 2),
+(1832, 95, 70, 2),
+(1832, 96, 70, 2),
+(1832, 97, 70, 2),
+(1832, 98, 70, 2),
+(1832, 99, 70, 2),
+(1832, 100, 70, 2),
+(1832, 101, 70, 2),
+(1832, 102, 70, 2),
+(1832, 103, 70, 2),
+(1832, 104, 70, 2),
+(1832, 105, 70, 2),
+(1832, 106, 70, 2),
+(1832, 107, 70, 2),
+(1832, 108, 70, 2),
+(1832, 109, 70, 2),
+(1832, 110, 70, 2),
+(1832, 111, 70, 2),
+(1832, 112, 70, 2),
+(1832, 113, 70, 2),
+(1832, 114, 70, 2),
+(1832, 115, 70, 2),
+(1832, 116, 70, 2),
+(1832, 117, 70, 2),
+(1832, 118, 70, 2),
+(2411, 64, 70, 2),
+(2411, 65, 70, 2),
+(2411, 66, 70, 2),
+(2411, 67, 70, 2),
+(2411, 68, 70, 2),
+(2411, 69, 70, 2),
+(2411, 70, 70, 2),
+(1877, 64, 70, 2),
+(1877, 65, 70, 2),
+(1877, 66, 70, 2),
+(1877, 67, 70, 2),
+(1877, 68, 70, 2),
+(1877, 69, 70, 2),
+(1877, 70, 70, 2),
+(1877, 71, 70, 2),
+(1877, 72, 70, 2),
+(1877, 73, 70, 2),
+(1877, 74, 70, 2),
+(1877, 75, 70, 2),
+(1877, 76, 70, 2),
+(1877, 77, 70, 2),
+(1877, 78, 70, 2),
+(1877, 79, 70, 2),
+(1877, 80, 70, 2),
+(1877, 81, 70, 2),
+(1877, 82, 70, 2),
+(1877, 83, 70, 2),
+(1877, 84, 70, 2),
+(1877, 85, 70, 2),
+(1877, 86, 70, 2),
+(1877, 87, 70, 2),
+(1877, 88, 70, 2),
+(1877, 89, 70, 2),
+(1877, 90, 70, 2),
+(1877, 91, 70, 2),
+(1877, 92, 70, 2),
+(1877, 93, 70, 2),
+(1877, 94, 70, 2),
+(1877, 95, 70, 2),
+(1877, 96, 70, 2),
+(1877, 97, 70, 2),
+(1877, 98, 70, 2),
+(1877, 99, 70, 2),
+(1877, 100, 70, 2),
+(1877, 101, 70, 2),
+(1877, 102, 70, 2),
+(1877, 103, 70, 2),
+(1877, 104, 70, 2),
+(1877, 105, 70, 2),
+(1877, 106, 70, 2),
+(1877, 107, 70, 2),
+(1877, 108, 70, 2),
+(1877, 109, 70, 2),
+(1877, 110, 70, 2),
+(1877, 111, 70, 2),
+(1877, 112, 70, 2);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `materias`
+--
+
+CREATE TABLE IF NOT EXISTS `materias` (
+  `id_materia` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre_materia` varchar(50) DEFAULT NULL,
+  `id_carrera` int(11) NOT NULL,
+  `cuatrimestre` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_materia`),
+  KEY `fk_carreras` (`id_carrera`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=256 ;
+
+--
+-- Volcado de datos para la tabla `materias`
+--
+
+INSERT INTO `materias` (`id_materia`, `nombre_materia`, `id_carrera`, `cuatrimestre`) VALUES
+(1, 'INGLES I', 1, 1),
+(2, 'VALORES DEL SER', 1, 1),
+(3, 'ALGEBRA LINEAL', 1, 1),
+(4, 'CALCULO DIFERENCIAL E INTEGRAL', 1, 1),
+(5, 'INTRODUCCION A LA INGENIERÍA INDUSTRIAL', 1, 1),
+(6, 'FUNDAMENTOS DE QUÍMICA', 1, 1),
+(7, 'FUNDAMENTOS DE FISICA', 1, 1),
+(8, 'INGLÉS II', 1, 2),
+(9, 'INTELIGENCIA EMOCIONAL', 1, 2),
+(10, 'PROBABILIDAD Y ESTADÍSTICA', 1, 2),
+(11, 'TERMODINÁMICA', 1, 2),
+(12, 'ELECTRICIDAD Y MAGNETISMO', 1, 2),
+(13, 'DIBUJO PARA INGENIERÍA', 1, 2),
+(14, 'TECNOLOGÍA DE LOS MATERIALES', 1, 2),
+(15, 'INGLÉS III', 1, 3),
+(16, 'DESARROLLO INTERPERSONAL', 1, 3),
+(17, 'PROCESO INTERPERSONAL', 1, 3),
+(18, 'ECUACIONES DIFERENCIALES', 1, 3),
+(19, 'SEGURIDAD E HIGIENE INDUSTRIAL', 1, 3),
+(20, 'METROLOGÍA', 1, 3),
+(21, 'CONTROL ESTADISTICO DE LA CALIDAD', 1, 3),
+(22, 'INGLÉS IV', 1, 4),
+(23, 'HABILIDADES DEL PENSAMIENTO', 1, 4),
+(24, 'LÓGICA DE PROGRAMACIÓN', 1, 4),
+(25, 'ESTADÍSTICA INDUSTRIAL', 1, 4),
+(26, 'GESTÍON EMPRESARIAL', 1, 4),
+(27, 'ANÁLISIS Y ENFOQUE DE SISTEMAS', 1, 4),
+(28, 'INGENIERÍA Y MÉTODOS', 1, 4),
+(29, 'INGLÉS V', 1, 5),
+(30, 'HABILIDADES ORGANIZACIONALES', 1, 5),
+(31, 'ADMINISTRACIONS DE LA PRODUCCIÓN', 1, 5),
+(32, 'INVESTIGACIÓN DE OPERACIONES ', 1, 5),
+(33, 'INGENIERÍA DE PLANTA', 1, 5),
+(34, 'ESTUDIO DEL TRABAJO', 1, 5),
+(35, 'FUNDAMENTOS DE INGENIERÍA ELECTRONICA', 1, 5),
+(36, 'INGLÉS VI', 1, 6),
+(37, 'ÉTICA PROFESIONAL', 1, 6),
+(38, 'PLANEACIÓN DE LA PRODUCCIÓN', 1, 6),
+(39, 'ANALISIS DE DESICIONES', 1, 6),
+(40, 'AUTOMATIZACIÓN Y CONTROL', 1, 6),
+(41, 'DISEÑO DE EXPERIMENTOS', 1, 6),
+(42, 'ESTANCIA I', 1, 6),
+(43, 'INGLÉS VII', 1, 7),
+(44, 'INGENIERÍA ECONOMICA', 1, 7),
+(45, 'SISTEMA DE MANUFACTURA', 1, 7),
+(46, 'PLANEACIÓN ESTRATÉGICA', 1, 7),
+(47, 'CONTABILIDAD INDUSTRIAL', 1, 7),
+(48, 'LEGISLACIÓN INDUSTRIAL', 1, 7),
+(49, 'LOGISTICA', 1, 7),
+(50, 'INGLÉS VIII', 1, 8),
+(51, 'ADMINISTRACIÓN DE CALIDAD TOTAL', 1, 8),
+(52, 'INGENIERÍA DE PRODUCTO', 1, 8),
+(53, 'SIMULACIÓN DE PROCESOS Y PRODUCTIVOS', 1, 8),
+(54, 'GESTIÓN DE INVENTARIOS', 1, 8),
+(55, 'ANÁLISIS FINANCIEROS', 1, 8),
+(56, 'ESTANCIA II', 1, 8),
+(57, 'INGLÉS IX', 1, 9),
+(58, 'SISTEMA DE GESTIÓN DE CALIDAD', 1, 9),
+(59, 'ADMINISTRACIÓN DE PROYECTOS', 1, 9),
+(60, 'DESARROLLO SUSTENTABLE', 1, 9),
+(61, 'CADENAS DE SUMINISTRO', 1, 9),
+(62, 'ADMINISTRACIÓN DE RECURSOS HUMANOS', 1, 9),
+(63, 'MANUFACTURA DE CLASE MUNDIAL', 1, 9),
+(64, 'INGLÉS I', 2, 1),
+(65, 'VALORES DEL SER', 2, 1),
+(66, 'ALGORITMOS', 2, 1),
+(67, 'HERRAMIENTAS OFIMÁTICAS', 2, 1),
+(68, 'INTRODUCCIÓN A LA INGENIERÍA EN TECNOLOGÍAS DE LA ', 2, 1),
+(69, 'ARQUITECTURA DE COMPUTADORAS', 2, 1),
+(70, 'MATEMATICAS BÁSICAS', 2, 1),
+(71, 'INGLÉS II', 2, 2),
+(72, 'INTELIGENCIA EMOCIONAL', 2, 2),
+(73, 'LÓGICA COMPUTACIONAL', 2, 2),
+(74, 'HERRAMIENTAS MULTIMEDIA', 2, 2),
+(75, 'FUNDAMENTOS DE REDES', 2, 2),
+(76, 'FUNDAMENTOS DE FÍSICA', 2, 2),
+(77, 'MATEMÁTICAS DISCRETAS', 2, 2),
+(78, 'INGLÉS III', 2, 3),
+(79, 'DESARRROLLO INTERPERSONAL', 2, 3),
+(80, 'PROGRAMACIÓN ESTRUCTURADA', 2, 3),
+(81, 'ADMINISTRACIÓN DE SISTEMAS OPERATIVOS', 2, 3),
+(82, 'RUTEO', 2, 3),
+(83, 'FUNDAMENTOS DE SISTEMAS DE INFORMACIÓN', 2, 3),
+(84, 'CÁLCULO DIFERENCIAL E INTEGRAL', 2, 3),
+(85, 'INGLÉS IV', 2, 4),
+(86, 'HABILIDADES DEL PENSAMIENTO', 2, 4),
+(87, 'INTRODUCCIÓN A LA PROGRAMACIÓN ORIENTADA A OBJETOS', 2, 4),
+(88, 'INTRODUCCIÓN A LA BASE DE DATOS', 2, 4),
+(89, 'SWITCHEO Y WIRELESS', 2, 4),
+(90, 'ÁLGEBRA LINEAL', 2, 4),
+(91, 'PROBABILIDAD Y ESTADISTICA', 2, 4),
+(92, 'INGLÉS V', 2, 5),
+(93, 'HABILIDADES ORGANIZACIONALES', 2, 5),
+(94, 'ESTRUCTURA DE DATOS', 2, 5),
+(95, 'DISEÑO DE BASE DE DATOS', 2, 5),
+(96, 'TECNOLOGÍAS WAN', 2, 5),
+(97, 'PROCESO ADMINISTRATIVO', 2, 5),
+(98, 'INGENIERÍA DE REQUERIMIENTOS', 2, 5),
+(99, 'INGLÉS VI', 2, 6),
+(100, 'ÉTICA PROFESIONAL', 2, 6),
+(101, 'ANÁLISIS Y DISEÑO ORIENTADO A OBJETOS', 2, 6),
+(102, 'IMPLEMENTACIÓN DE BASE DE DATOS', 2, 6),
+(103, 'ANÁLISIS Y DISEÑO DE SISTEMAS', 2, 6),
+(104, 'INGENIERÍA DE SOFTWARE', 2, 6),
+(105, 'ESTANCIA I', 2, 6),
+(106, 'INGLÉS VII', 2, 7),
+(107, 'DISEÑO DE INTERFACES', 2, 7),
+(108, 'PROGRAMACIÓN ORIENTADA A OBJETOS', 2, 7),
+(109, 'SEGURIDAD INFORMÁTICA', 2, 7),
+(110, 'ARQUITECTURA DE APLICACIONES EMPRESARIALES', 2, 7),
+(111, 'SEMINARIO DE INVESTIGACIÓN', 2, 7),
+(112, 'NEGOCIOS ELECTRÓNICOS', 2, 7),
+(113, 'INGLÉS VIII', 2, 8),
+(114, 'PROGRAMACIÓN WEB', 2, 8),
+(115, 'MINERIA DE DATOS APLICADA', 2, 8),
+(116, 'ARQUITECTURA DE SOLUCIONES MÓVILES EMPRESARIALES', 2, 8),
+(117, 'PROYECTO DE TECNOLOGÍAS DE LA INFORMACIÓN', 2, 8),
+(118, 'ADMINISTRACIÓN DE SISTEMAS', 2, 8),
+(119, 'ESTANCIA II', 2, 8),
+(120, 'INGLES IX', 2, 9),
+(121, 'ADMINISTRACIÓN DE CENTROS DE CÓMPUTO', 2, 9),
+(122, 'TECNOLOGÍA Y APLICACIONES WEB', 2, 9),
+(123, 'INTELIGENCIA DE NEGOCIOS', 2, 9),
+(124, 'PROGRAMACIÓN MVC', 2, 9),
+(125, 'DESARROLLO DE EMPRENDEDORES', 2, 9),
+(126, 'INTREGRACIÓN DE TECNOLOGÍAS DE LA INFORMACIÓN', 2, 9),
+(127, 'ESTADÍA', 2, 10),
+(128, 'INGLÉS I', 3, 1),
+(129, 'VALORES DEL SER', 3, 1),
+(130, 'INTRODUCCION A LA INGENIERÍA EN ENERGÍA', 3, 1),
+(131, 'PROGRAMACIÓN', 3, 1),
+(132, 'TRANSFORMACIONES QUÍMICAS CON LABORATORIO', 3, 1),
+(133, 'MECÁNICA CON LABORATORIO', 3, 1),
+(134, 'CALCULO DIFERENCIAL', 3, 1),
+(135, 'INGLÉS II', 3, 2),
+(136, 'INTELIGENCIA EMOCIONAL', 3, 2),
+(137, 'SEMINARIO DE INGENIERÍA EN ENERGÍA TERMICA', 3, 2),
+(138, 'LABORATORIO DE SIMULACION Y DISEÑO POR COMPUTADORA', 3, 2),
+(139, 'TERMODINÁMICA CON LABORATORIO', 3, 2),
+(140, 'ÓPTICA', 3, 2),
+(141, 'CÁLCULO INTEGRAL', 3, 2),
+(142, 'INGLÉS III', 3, 3),
+(143, 'DESARROLLO INTERPERSONAL', 3, 3),
+(144, 'SEMINARIO DE INGENIERÍA EN ENERGÍA EÓLICA', 3, 3),
+(145, 'MECÁNICA DE FLUIDOS CON LABORATORIO', 3, 3),
+(146, 'TRANSFERENCIA DE CALOR Y MASA', 3, 3),
+(147, 'ÁLGEBRA LINEAL', 3, 3),
+(148, 'CÁLCULO DE VARIAS VARIABLES', 3, 3),
+(149, 'INGLÉS IV', 3, 4),
+(150, 'HABILIDADES DEL PENSAMIENTO', 3, 4),
+(151, 'SEMINARIO DE INGENIERÍA EN ENERGÍA DEL HIDRÓGENO', 3, 4),
+(152, 'FÍSICA MODERNA', 3, 4),
+(153, 'ENERGÍA DEL HIDRÓGENO CON LABORATORIO', 3, 4),
+(154, 'ECUACIONES DIFERENCIALES', 3, 4),
+(155, 'ELECTRICIDAD Y MAGNETISMO CON LABORATORIO', 3, 4),
+(156, 'INGLÉS V', 3, 5),
+(157, 'HABILIDADES ORGANIZACIONALES', 3, 5),
+(158, 'SEMINARIO DE INGENIERÍA EN ENERGÍA FOTOVOLTAICA', 3, 5),
+(159, 'ESTADO SÓLIDO', 3, 5),
+(160, 'CELDAS DE COMBUSTIBLE', 3, 5),
+(161, 'SISTEMAS FOTOVOLTAICOS CON LABORATORIO', 3, 5),
+(162, 'ECUACIONES DIFERENCIALES PARCIALES', 3, 5),
+(163, 'INGLÉS VI', 3, 6),
+(164, 'ÉTICA PROFESIONAL', 3, 6),
+(165, 'SEMINARIO DE INGENIERÍA EN ENERGÍA DE BIOMASA', 3, 6),
+(166, 'ELECTROQUÍMICA', 3, 6),
+(167, 'MÁQUINAS ELÉCTRICAS', 3, 6),
+(168, 'BIOMASA CON LABORATORIO', 3, 6),
+(169, 'ESTANCIA I', 3, 6),
+(170, 'INGLÉS VII', 3, 7),
+(171, 'SISTEMAS TÉRMICOS', 3, 7),
+(172, 'CONTABILIDAD EMPRESARIAL', 3, 7),
+(173, 'METROLOGÍA E INSTRUMENTACÍON', 3, 7),
+(174, 'FÍSICA NUCLEAR CON LABORATORIO', 3, 7),
+(175, 'INGENIERÍA AMBIENTAL', 3, 7),
+(176, 'SEGURIDAD INDUSTRIAL', 3, 7),
+(177, 'INGLÉS VIII', 3, 8),
+(178, 'MÁQUINAS TÉRMICAS', 3, 8),
+(179, 'AHORRO Y USO EFICIENTE DE ENERGÍA', 3, 8),
+(180, 'ENERGÍA HIDRÁULICA CON LABORATORIO', 3, 8),
+(181, 'INGENIERÍA ENERGÉTICA', 3, 8),
+(182, 'ALMACENAMIENTO DE ENERGÍA SOLAR', 3, 8),
+(183, 'ESTANCIA II', 3, 8),
+(184, 'INGLÉS IX', 3, 9),
+(185, 'CICLOS COMBINADOS', 3, 9),
+(186, 'GESTIÓN DE PROYECTOS', 3, 9),
+(187, 'INNOVACIÓN TECNOLÓGICA', 3, 9),
+(188, 'INTRODUCCIÓN A LA ADMINISTRACIÓN', 3, 9),
+(189, 'INTRODUCCIÓN A LA ARQUITECTURA BIOCLIMÁTICA', 3, 9),
+(190, 'ÉTICA EN LOS NEGOCIOS', 3, 9),
+(191, 'ESTADÍAS', 3, 10),
+(192, 'INGLÉS I', 4, 1),
+(193, 'VALORES DEL SER', 4, 1),
+(194, 'TÓPICOS DE INGENIERÍA EN ELECTRÓNICA Y TELECOMUNIC', 4, 1),
+(195, 'ÁLGEBRA LINEAL', 4, 1),
+(196, 'CÁLCULO DIFERENCIAL E INTEGRAL', 4, 1),
+(197, 'LÓGICA DE PROGRAMACIÓN', 4, 1),
+(198, 'PROBABILIDAD Y ESTADÍSTICA', 4, 1),
+(199, 'INGLÉS II', 4, 2),
+(200, 'INTELIGENCIA EMOCIONAL', 4, 2),
+(201, 'MANTENIMIENTO ELECTRÓNICO', 4, 2),
+(202, 'FUNDAMENTOS DE FÍSICA', 4, 2),
+(203, 'CÁLCULO VECTORIAL', 4, 2),
+(204, 'PROGRAMACIÓN ESTRUCTURADA', 4, 2),
+(205, 'FUNDAMENTOS DE QUÍMICA', 4, 2),
+(206, 'INGLÉS III', 4, 3),
+(207, 'DESARRROLLO INTERPERSONAL', 4, 3),
+(208, 'CIRCUITOS EN CORRIENTE DIRECTA', 4, 3),
+(209, 'CIRCUITOS LÓGICOS', 4, 3),
+(210, 'ECUACIONES DIFERENCIALES', 4, 3),
+(211, 'PROGRAMACIÓN DE PERIFÉRICOS', 4, 3),
+(212, 'ELECTRICIDAD Y MAGNETISMO', 4, 3),
+(213, 'INGLÉS IV', 4, 4),
+(214, 'HABILIDADES DEL PENSAMIENTO', 4, 4),
+(215, 'CIRCUITOS EN CORRIENTE ALTERNA', 4, 4),
+(216, 'SISTEMAS DIGITALES', 4, 4),
+(217, 'MÉTODOS MATEMÁTICOS', 4, 4),
+(218, 'ANÁLISIS DE DISPOSITIVOS ELECTRÓNICOS', 4, 4),
+(219, 'TEORÍA ELECTROMAGNÉTICA', 4, 4),
+(220, 'INGLÉS V', 4, 5),
+(221, 'HABILIDADES ORGANIZACIONALES', 4, 5),
+(222, 'INGENIERÍA DE CONTROL', 4, 5),
+(223, 'DISEÑO DIGITAL', 4, 5),
+(224, 'MÉTODOS NUMÉRICOS', 4, 5),
+(225, 'SISTEMAS DE AMPLIFICACIÓN', 4, 5),
+(226, 'PROCESOS ESTOCÁSTICOS', 4, 5),
+(227, 'INGLÉS VI', 4, 6),
+(228, 'ÉTICA PROFESIONAL', 4, 6),
+(229, 'REDES DE COMUNICACIONES', 4, 6),
+(230, 'MICRO CONTROLADORES', 4, 6),
+(231, 'MODULACIONES ANALÓGICAS', 4, 6),
+(232, 'FILTROS ANALÓGICOS', 4, 6),
+(233, 'ESTANCIA I', 4, 6),
+(234, 'INGLÉS VII', 4, 7),
+(235, 'INSTRUMENTACIÓN ELECTRÓNICA', 4, 7),
+(236, 'GESTIÓN ADMINISTRATIVA', 4, 7),
+(237, 'CONTROL INDUSTRIAL', 4, 7),
+(238, 'MODULACIONES DIGITALES', 4, 7),
+(239, 'PLCS', 4, 7),
+(240, 'SISTEMA DE TELEFONÍA', 4, 7),
+(241, 'INGLÉS VIII', 4, 8),
+(242, 'ANTENAS Y LÍNEAS DE TRANSMISIÓN ', 4, 8),
+(243, 'CONTROL DE CALIDAD', 4, 8),
+(244, 'CONTROL DIGITAL', 4, 8),
+(245, 'PROCESAMIENTO DIGITAL DE SEÑALES', 4, 8),
+(246, 'COMUNICACIONES DIGITALES', 4, 8),
+(247, 'ESTANCIA II', 4, 8),
+(248, 'INGLÉS IX', 4, 9),
+(249, 'ELECTRÓNICA DE POTENCIA', 4, 9),
+(250, 'REDES DE COMUNICACIONES INDUSTRIALES', 4, 9),
+(251, 'ENERGÍAS ALTERNAS', 4, 9),
+(252, 'CONTROL DE PROCESOS', 4, 9),
+(253, 'SISTEMAS DE COMUNICACIÓN INALÁMBRICA', 4, 9),
+(254, 'SEMINARIO DE PROYECTOS', 4, 9),
+(255, 'ESTADÍAS', 4, 10);
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

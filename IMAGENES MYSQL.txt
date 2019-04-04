@@ -1,0 +1,33 @@
+ CREATE TABLE XX_SAMPLE
+(ID INT,
+IMAGE BLOB);
+
+
+INSERT INTO xx_BLOB(ID,IMAGE) VALUES(1,LOAD_FILE('E:/Images/jack.jpg'));
+
+LOAD_FILE('/some/path/image.png')
+
+
+///////////////////////ejemplo de tabla
+CREATE TABLE 'sample'.'picture' ( 
+'idpicture' INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, 
+'caption' VARCHAR(45) NOT NULL, 
+'img' LONGBLOB NOT NULL, 
+ PRIMARY KEY('idpicture')) TYPE = InnoDB;
+
+/////////////////////update
+mysql> UPDATE t
+            SET blob_col=LOAD_FILE('/tmp/picture')
+            WHERE id=1;
+
+
+
+-----------PRUEBA INSERT EN lalala------
+INSERT INTO `images`(`id_ima`, `imagen`) VALUES (5,'D:/images/neg.JPEG')
+
+
+-----------PRUEBA UPDATE EN images------
+UPDATE images SET imagen = NULL WHERE id_ima =5
+
+-----------Prueba se SELECT COUNT()
+select count(id_ima) from images where imagen is  not null
