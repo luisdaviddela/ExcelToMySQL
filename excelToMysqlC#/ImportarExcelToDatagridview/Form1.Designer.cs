@@ -40,7 +40,7 @@
             this.BBrowse.ForeColor = System.Drawing.SystemColors.ControlText;
             this.BBrowse.Image = ((System.Drawing.Image)(resources.GetObject("BBrowse.Image")));
             this.BBrowse.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.BBrowse.Location = new System.Drawing.Point(12, 39);
+            this.BBrowse.Location = new System.Drawing.Point(46, 55);
             this.BBrowse.Name = "BBrowse";
             this.BBrowse.Size = new System.Drawing.Size(141, 45);
             this.BBrowse.TabIndex = 193;
@@ -55,7 +55,7 @@
             this.button2.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button2.Image = ((System.Drawing.Image)(resources.GetObject("button2.Image")));
             this.button2.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button2.Location = new System.Drawing.Point(23, 166);
+            this.button2.Location = new System.Drawing.Point(70, 106);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(89, 37);
             this.button2.TabIndex = 195;
@@ -68,7 +68,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.HighlightText;
-            this.ClientSize = new System.Drawing.Size(489, 274);
+            this.ClientSize = new System.Drawing.Size(244, 274);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.BBrowse);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
